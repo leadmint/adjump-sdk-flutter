@@ -1,7 +1,7 @@
 
-# AdJump Flutter SDK
+# Adjump Flutter SDK
 
-AdJump is an offerwall monetization SDK that enables Flutter apps to launch a native Android offerwall. This README walks you through integrating and using AdJump within your Flutter project.
+Adjump is an offerwall monetization SDK that enables Flutter apps to launch a native Android offerwall. This README walks you through integrating and using Adjump within your Flutter project.
 
 ---
 
@@ -34,7 +34,7 @@ No need to install a Flutter package. The communication is done using a `MethodC
 Navigate to `android/app/build.gradle` and add this inside the `dependencies` block:
 
 ```groovy
-implementation("io.leadmint.adjump:offerwall:1.0.1")
+implementation("io.leadmint.Adjump:offerwall:1.0.1")
 ```
 
 Also ensure your app has internet permission in `AndroidManifest.xml`:
@@ -52,22 +52,22 @@ Also ensure your app has internet permission in `AndroidManifest.xml`:
 In your `MainActivity.kt` (inside `android/`):
 
 ```kotlin
-package com.example.adjump
+package com.example.Adjump
 
 import android.widget.Toast
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import io.adjump.offerwall.AdJump
+import io.Adjump.offerwall.Adjump
 
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "com.example.offerwall_app"
-    private var adJump: AdJump? = null
+    private var Adjump: Adjump? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        adJump = AdJump(this, "accountid", "appid", "userid")
+        Adjump = Adjump(this, "accountid", "appid", "userid")
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result ->
@@ -82,13 +82,13 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun launchOfferWall() {
-        adJump?.initialize(object : AdJump.InitialisationListener {
+        Adjump?.initialize(object : Adjump.InitialisationListener {
             override fun onInitialisationSuccess() {
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "AdJump SDK Initialized", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "Adjump SDK Initialized", Toast.LENGTH_SHORT).show()
                 }
-                if (adJump?.isAvailable == true) {
-                    adJump?.launchOfferWall()
+                if (Adjump?.isAvailable == true) {
+                    Adjump?.launchOfferWall()
                 } else {
                     Toast.makeText(this@MainActivity, "Offerwall not available!", Toast.LENGTH_SHORT).show()
                 }
@@ -123,7 +123,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(title: Text('AdJump Example')),
+        appBar: AppBar(title: Text('Adjump Example')),
         body: Center(
           child: ElevatedButton(
             onPressed: _launchOfferWall,
@@ -159,13 +159,13 @@ class MyApp extends StatelessWidget {
 A: No, this SDK currently supports Android only.
 
 **Q: Where do I get my `accountid`, `appid`, and `userid`?**  
-A: These are provided by the AdJump platform once you're onboarded.
+A: These are provided by the Adjump platform once you're onboarded.
 
 ---
 
 ## 📞 Support
 
-For help and support, contact your AdJump integration manager or mail at support@adjump.io
+For help and support, contact your Adjump integration manager or mail at support@Adjump.io
 
 ---
 
