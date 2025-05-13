@@ -165,7 +165,7 @@ A: These are provided by the AdJump platform once you're onboarded.
 
 ## 📞 Support
 
-For help and support, contact your AdJump integration manager or open an issue.
+For help and support, contact your AdJump integration manager or mail at `support@adjump.io`.
 
 ---
 
