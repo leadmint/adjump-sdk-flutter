@@ -1,35 +1,65 @@
-# 📱 AdJump Flutter SDK
 
-AdJump is an offerwall SDK that enables monetization by presenting users with offers directly within your Flutter app. This SDK bridges Flutter and native Android using a `MethodChannel`.
+# AdJump Flutter SDK
 
-## 🧩 Features
+AdJump is an offerwall monetization SDK that enables Flutter apps to launch a native Android offerwall. This README walks you through integrating and using AdJump within your Flutter project.
 
-- Launch a native Android offerwall from Flutter
-- Customizable through native configuration
-- Simple setup with MethodChannel integration
+---
+
+## 🚀 Features
+
+- Easy integration with Flutter and native Android
+- Simple method channel-based communication
+- Automatic handling of SDK initialization and offerwall launch
+
+---
+
+## 🧰 Requirements
+
+- Flutter SDK (2.10+ recommended)
+- Android SDK (API 21+)
+- Kotlin 1.5+
+- Gradle 7.0+
+- Internet permission
 
 ---
 
 ## 📦 Installation
 
-1. Add the following dependencies in your Flutter project:
+### 1. Flutter Project Setup
 
-```yaml
-# pubspec.yaml
-dependencies:
-  flutter:
-    sdk: flutter
+No need to install a Flutter package. The communication is done using a `MethodChannel`.
+
+### 2. Android Native Setup
+
+Navigate to `android/app/build.gradle` and add this inside the `dependencies` block:
+
+```groovy
+implementation("io.leadmint.adjump:offerwall:1.0.1")
 ```
 
-2. Add the native Android SDK in your `MainActivity.kt` (already integrated in this example).
+Also ensure your app has internet permission in `AndroidManifest.xml`:
+
+```xml
+<uses-permission android:name="android.permission.INTERNET" />
+```
 
 ---
 
-## 🛠️ Setup
+## 🧑‍💻 Integration Guide
 
-### 1. Android Native Integration (`MainActivity.kt`)
+### 1. Android (Kotlin)
+
+In your `MainActivity.kt` (inside `android/`):
 
 ```kotlin
+package com.example.adjump
+
+import android.widget.Toast
+import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodChannel
+import io.adjump.offerwall.AdJump
+
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "com.example.offerwall_app"
     private var adJump: AdJump? = null
@@ -74,7 +104,9 @@ class MainActivity : FlutterActivity() {
 }
 ```
 
-### 2. Flutter Integration (`main.dart`)
+### 2. Flutter Dart Code
+
+In your `main.dart` file:
 
 ```dart
 import 'package:flutter/material.dart';
@@ -94,9 +126,7 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(title: Text('AdJump Example')),
         body: Center(
           child: ElevatedButton(
-            onPressed: () {
-              _launchOfferWall();
-            },
+            onPressed: _launchOfferWall,
             child: Text('Launch OfferWall'),
           ),
         ),
@@ -116,15 +146,29 @@ class MyApp extends StatelessWidget {
 
 ---
 
-## 🔄 MethodChannel Methods
+## 🧪 Testing
 
-| Method Name        | Description                    |
-|--------------------|--------------------------------|
-| `launchOfferWall`  | Initializes SDK and shows wall |
+- Make sure you're running on a physical Android device or emulator with internet access.
+- Log output and Toast messages will indicate SDK initialization and errors.
 
 ---
 
-## 📌 Notes
+## ❓ FAQ
 
-- This SDK only works on Android at the moment.
-- Make sure the `accountid`, `appid`, and `userid` are set correctly in `MainActivity.kt`.
+**Q: Does it support iOS?**  
+A: No, this SDK currently supports Android only.
+
+**Q: Where do I get my `accountid`, `appid`, and `userid`?**  
+A: These are provided by the AdJump platform once you're onboarded.
+
+---
+
+## 📞 Support
+
+For help and support, contact your AdJump integration manager or open an issue.
+
+---
+
+## 📃 License
+
+Proprietary - For internal use only. Do not distribute without permission.
