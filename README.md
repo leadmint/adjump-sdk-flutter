@@ -16,7 +16,7 @@ Adjump is an offerwall monetization SDK that enables Flutter apps to launch a na
 ## 🧰 Requirements
 
 - Flutter SDK (2.10+ recommended)
-- Android SDK (API 21+)
+- Android SDK (API 24+)
 - Kotlin 1.5+
 - Gradle 7.0+
 - Internet permission
