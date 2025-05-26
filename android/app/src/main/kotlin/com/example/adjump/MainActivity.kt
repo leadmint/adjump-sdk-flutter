@@ -15,15 +15,27 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        // Setup AdJump
-        adJump = AdJump(this, "accountid", "appid", "userid")
-
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "launchOfferWall" -> {
-                        launchOfferWall()
-                        result.success("Offer wall launched")
+                        val arguments = call.arguments as? Map<*, *>
+                        if (arguments != null) {
+                            val accountId = arguments["accountId"] as? String
+                            val appId = arguments["appId"] as? String
+                            val userId = arguments["userId"] as? String
+
+                            if (accountId != null && appId != null && userId != null) {
+                                // Initialize AdJump with the provided credentials
+                                adJump = AdJump(this, accountId, appId, userId)
+                                launchOfferWall()
+                                result.success("Offer wall launched")
+                            } else {
+                                result.error("INVALID_ARGUMENTS", "Missing required parameters", null)
+                            }
+                        } else {
+                            result.error("INVALID_ARGUMENTS", "Arguments are required", null)
+                        }
                     }
                     else -> result.notImplemented()
                 }

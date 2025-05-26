@@ -27,7 +27,12 @@ class MyApp extends StatelessWidget {
 
   Future<void> _launchOfferWall() async {
     try {
-      await platform.invokeMethod('launchOfferWall');
+      final Map<String, String> params = {
+        'accountId': 'YOUR_ACCOUNT_ID',
+        'appId': 'YOUR_APP_ID',
+        'userId': 'USER_ID',
+      };
+      await platform.invokeMethod('launchOfferWall', params);
     } on PlatformException catch (e) {
       print("Failed to show offer wall: '${e.message}'.");
     }

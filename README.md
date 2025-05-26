@@ -1,4 +1,3 @@
-
 # Adjump Flutter SDK
 
 Adjump is an offerwall monetization SDK that enables Flutter apps to launch a native Android offerwall. This README walks you through integrating and using Adjump within your Flutter project.
@@ -10,6 +9,8 @@ Adjump is an offerwall monetization SDK that enables Flutter apps to launch a na
 - Easy integration with Flutter and native Android
 - Simple method channel-based communication
 - Automatic handling of SDK initialization and offerwall launch
+- Secure credential management
+- Error handling and user feedback
 
 ---
 
@@ -47,64 +48,7 @@ Also ensure your app has internet permission in `AndroidManifest.xml`:
 
 ## 🧑‍💻 Integration Guide
 
-### 1. Android (Kotlin)
-
-In your `MainActivity.kt` (inside `android/`):
-
-```kotlin
-package com.example.Adjump
-
-import android.widget.Toast
-import io.flutter.embedding.android.FlutterActivity
-import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.plugin.common.MethodChannel
-import io.Adjump.offerwall.Adjump
-
-class MainActivity : FlutterActivity() {
-    private val CHANNEL = "com.example.offerwall_app"
-    private var Adjump: Adjump? = null
-
-    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
-        super.configureFlutterEngine(flutterEngine)
-
-        Adjump = Adjump(this, "accountid", "appid", "userid")
-
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
-            .setMethodCallHandler { call, result ->
-                when (call.method) {
-                    "launchOfferWall" -> {
-                        launchOfferWall()
-                        result.success("Offer wall launched")
-                    }
-                    else -> result.notImplemented()
-                }
-            }
-    }
-
-    private fun launchOfferWall() {
-        Adjump?.initialize(object : Adjump.InitialisationListener {
-            override fun onInitialisationSuccess() {
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Adjump SDK Initialized", Toast.LENGTH_SHORT).show()
-                }
-                if (Adjump?.isAvailable == true) {
-                    Adjump?.launchOfferWall()
-                } else {
-                    Toast.makeText(this@MainActivity, "Offerwall not available!", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onInitialisationError(exception: Exception) {
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Initialization failed: ${exception.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-        })
-    }
-}
-```
-
-### 2. Flutter Dart Code
+### 1. Flutter Implementation
 
 In your `main.dart` file:
 
@@ -123,10 +67,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(title: Text('Adjump Example')),
+        appBar: AppBar(title: Text('AdJump Example')),
         body: Center(
           child: ElevatedButton(
-            onPressed: _launchOfferWall,
+            onPressed: () {
+              _launchOfferWall();
+            },
             child: Text('Launch OfferWall'),
           ),
         ),
@@ -136,7 +82,12 @@ class MyApp extends StatelessWidget {
 
   Future<void> _launchOfferWall() async {
     try {
-      await platform.invokeMethod('launchOfferWall');
+      final Map<String, String> params = {
+        'accountId': 'YOUR_ACCOUNT_ID',
+        'appId': 'YOUR_APP_ID',
+        'userId': 'USER_ID',
+      };
+      await platform.invokeMethod('launchOfferWall', params);
     } on PlatformException catch (e) {
       print("Failed to show offer wall: '${e.message}'.");
     }
@@ -144,12 +95,94 @@ class MyApp extends StatelessWidget {
 }
 ```
 
+### 2. Android Implementation
+
+In your `MainActivity.kt`:
+
+```kotlin
+package com.example.adjump
+
+import android.widget.Toast
+import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodChannel
+import io.adjump.offerwall.AdJump
+
+class MainActivity : FlutterActivity() {
+    private val CHANNEL = "com.example.offerwall_app"
+    private var adJump: AdJump? = null
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "launchOfferWall" -> {
+                        val arguments = call.arguments as? Map<*, *>
+                        if (arguments != null) {
+                            val accountId = arguments["accountId"] as? String
+                            val appId = arguments["appId"] as? String
+                            val userId = arguments["userId"] as? String
+
+                            if (accountId != null && appId != null && userId != null) {
+                                adJump = AdJump(this, accountId, appId, userId)
+                                launchOfferWall()
+                                result.success("Offer wall launched")
+                            } else {
+                                result.error("INVALID_ARGUMENTS", "Missing required parameters", null)
+                            }
+                        } else {
+                            result.error("INVALID_ARGUMENTS", "Arguments are required", null)
+                        }
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+    }
+
+    private fun launchOfferWall() {
+        adJump?.initialize(object : AdJump.InitialisationListener {
+            override fun onInitialisationSuccess() {
+                runOnUiThread { Toast.makeText(this@MainActivity, "AdJump SDK Initialized", Toast.LENGTH_SHORT).show() }
+                if (adJump?.isAvailable == true) {
+                    adJump?.launchOfferWall()
+                } else {
+                    Toast.makeText(this@MainActivity, "Offerwall not available!", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onInitialisationError(exception: Exception) {
+                runOnUiThread { Toast.makeText(this@MainActivity, "Initialization failed: ${exception.message}", Toast.LENGTH_SHORT).show() }
+            }
+        })
+    }
+}
+```
+
+---
+
+## 🔑 Configuration
+
+1. Replace the placeholder values in your Flutter code with your actual Adjump credentials:
+   - `YOUR_ACCOUNT_ID`: Your Adjump account identifier
+   - `YOUR_APP_ID`: Your application identifier
+   - `USER_ID`: The user identifier for the current session
+
+2. Make sure the method channel name matches in both Flutter and Android code:
+   ```dart
+   static const platform = MethodChannel('com.example.offerwall_app');
+   ```
+
 ---
 
 ## 🧪 Testing
 
-- Make sure you're running on a physical Android device or emulator with internet access.
-- Log output and Toast messages will indicate SDK initialization and errors.
+- Make sure you're running on a physical Android device or emulator with internet access
+- Log output and Toast messages will indicate:
+  - SDK initialization status
+  - Offerwall availability
+  - Any errors that occur during the process
 
 ---
 
@@ -158,8 +191,11 @@ class MyApp extends StatelessWidget {
 **Q: Does it support iOS?**  
 A: No, this SDK currently supports Android only.
 
-**Q: Where do I get my `accountid`, `appid`, and `userid`?**  
+**Q: Where do I get my `accountId`, `appId`, and `userId`?**  
 A: These are provided by the Adjump platform once you're onboarded.
+
+**Q: What happens if the credentials are invalid?**  
+A: The SDK will show an error message through a Toast notification and log the error details.
 
 ---
 
@@ -171,4 +207,4 @@ For help and support, contact your Adjump integration manager or mail at support
 
 ## 📃 License
 
-Proprietary - For internal use only. Do not distribute without permission.
+Proprietary - For internal use only. Do not distribute without permission. 
